@@ -12,16 +12,36 @@ datasource db {
 
 // User model for authentication and roles
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  name          String
-  role          Role      @default(CUSTOMER)
-  phone         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  orders        Order[]
-  addresses     Address[]
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Product model for menu items
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  image       String?
+  category    String?
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Order model
+model Order {
+  id        String   @id @default(cuid())
+  userId    String
+  status    String   @default("pending")
+  total     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Role enum for user types
@@ -30,26 +50,6 @@ enum Role {
   STAFF
   DRIVER
   CUSTOMER
-}
-
-// Product model for menu items
-model Product {
-  id            String    @id @default(cuid())
-  name          String
-  description   String?
-  price         Decimal
-  image         String?
-  categoryId    String
-  category      Category  @relation(fields: [categoryId], references: [id])
-  isAvailable   Boolean   @default(true)
-  trackStock    Boolean   @default(false)
-  currentStock  Int?
-  lowStockThreshold Int?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  orderItems    OrderItem[]
-  modifiers     ProductModifier[]
-  ingredients   ProductIngredient[]
 }
 
 // Category model for product organization
@@ -138,42 +138,6 @@ model ProductModifier {
   updatedAt     DateTime  @updatedAt
 
   @@unique([productId, groupId])
-}
-
-// Order model
-model Order {
-  id            String    @id @default(cuid())
-  userId        String
-  user          User      @relation(fields: [userId], references: [id])
-  status        OrderStatus @default(PENDING)
-  type          OrderType
-  total         Decimal
-  deliveryFee   Decimal?
-  addressId     String?
-  address       Address?  @relation(fields: [addressId], references: [id])
-  driverId      String?
-  driver        User?     @relation("DriverToOrder", fields: [driverId], references: [id])
-  items         OrderItem[]
-  payment       Payment?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-}
-
-// Order status enum
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PREPARING
-  READY_FOR_PICKUP
-  OUT_FOR_DELIVERY
-  DELIVERED
-  CANCELLED
-}
-
-// Order type enum
-enum OrderType {
-  DELIVERY
-  TAKE_AWAY
 }
 
 // Order item model
