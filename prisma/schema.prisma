@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and roles
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          Role      @default(CUSTOMER)
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  orders        Order[]
+  addresses     Address[]
+}
+
+// Role enum for user types
+enum Role {
+  ADMIN
+  STAFF
+  DRIVER
+  CUSTOMER
+}
+
+// Product model for menu items
+model Product {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  price         Decimal
+  image         String?
+  categoryId    String
+  category      Category  @relation(fields: [categoryId], references: [id])
+  isAvailable   Boolean   @default(true)
+  trackStock    Boolean   @default(false)
+  currentStock  Int?
+  lowStockThreshold Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  orderItems    OrderItem[]
+  modifiers     ProductModifier[]
+  ingredients   ProductIngredient[]
+}
+
+// Category model for product organization
+model Category {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  image         String?
+  parentId      String?
+  parent        Category? @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children      Category[] @relation("CategoryToCategory")
+  products      Product[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Ingredient model for product recipes
+model Ingredient {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  unit          String    // kg, lt, unit, etc.
+  costPerUnit   Decimal
+  trackStock    Boolean   @default(false)
+  currentStock  Decimal?
+  lowStockThreshold Decimal?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  products      ProductIngredient[]
+}
+
+// Product-Ingredient relationship
+model ProductIngredient {
+  id            String    @id @default(cuid())
+  productId     String
+  ingredientId  String
+  quantity      Decimal
+  product       Product   @relation(fields: [productId], references: [id])
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([productId, ingredientId])
+}
+
+// Modifier group model (e.g., "Size", "Toppings")
+model ModifierGroup {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  selectionType SelectionType
+  minSelection  Int       @default(0)
+  maxSelection  Int       @default(1)
+  products      ProductModifier[]
+  options       ModifierOption[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Selection type enum
+enum SelectionType {
+  SINGLE
+  MULTIPLE
+}
+
+// Modifier option model (e.g., "Small", "Medium", "Large")
+model ModifierOption {
+  id            String    @id @default(cuid())
+  name          String
+  price         Decimal   @default(0)
+  groupId       String
+  group         ModifierGroup @relation(fields: [groupId], references: [id])
+  orderItems    OrderItemModifier[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Product-ModifierGroup relationship
+model ProductModifier {
+  id            String    @id @default(cuid())
+  productId     String
+  groupId       String
+  product       Product   @relation(fields: [productId], references: [id])
+  group         ModifierGroup @relation(fields: [groupId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([productId, groupId])
+}
+
+// Order model
+model Order {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  status        OrderStatus @default(PENDING)
+  type          OrderType
+  total         Decimal
+  deliveryFee   Decimal?
+  addressId     String?
+  address       Address?  @relation(fields: [addressId], references: [id])
+  driverId      String?
+  driver        User?     @relation("DriverToOrder", fields: [driverId], references: [id])
+  items         OrderItem[]
+  payment       Payment?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Order status enum
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY_FOR_PICKUP
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+// Order type enum
+enum OrderType {
+  DELIVERY
+  TAKE_AWAY
+}
+
+// Order item model
+model OrderItem {
+  id            String    @id @default(cuid())
+  orderId       String
+  productId     String
+  quantity      Int
+  price         Decimal
+  order         Order     @relation(fields: [orderId], references: [id])
+  product       Product   @relation(fields: [productId], references: [id])
+  modifiers     OrderItemModifier[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Order item modifier model
+model OrderItemModifier {
+  id            String    @id @default(cuid())
+  orderItemId   String
+  optionId      String
+  orderItem     OrderItem @relation(fields: [orderItemId], references: [id])
+  option        ModifierOption @relation(fields: [optionId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([orderItemId, optionId])
+}
+
+// Address model for delivery
+model Address {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  street        String
+  number        String
+  apartment     String?
+  city          String
+  state         String
+  zipCode       String
+  reference     String?
+  orders        Order[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Payment model
+model Payment {
+  id            String    @id @default(cuid())
+  orderId       String    @unique
+  order         Order     @relation(fields: [orderId], references: [id])
+  amount        Decimal
+  status        PaymentStatus @default(PENDING)
+  provider      String    // "mercadopago"
+  providerId    String?   // External payment ID
+  qrCode        String?   // QR code data
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Payment status enum
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+} 
