@@ -1,56 +1,47 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import jwt from 'jsonwebtoken'
+import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
-// Add paths that don't require authentication
-const publicPaths = [
-  '/api/auth/login',
-  '/api/auth/register',
-  '/api/products',
-  '/api/categories',
-]
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+    const isAuth = !!token;
+    const isAuthPage = req.nextUrl.pathname.startsWith("/auth");
+    const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
+    const isSellerPage = req.nextUrl.pathname.startsWith("/seller");
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+    if (isAuthPage) {
+      if (isAuth) {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+      return null;
+    }
 
-  // Check if the path is public
-  if (publicPaths.some(path => pathname.startsWith(path))) {
-    return NextResponse.next()
+    if (!isAuth) {
+      let from = req.nextUrl.pathname;
+      if (req.nextUrl.search) {
+        from += req.nextUrl.search;
+      }
+
+      return NextResponse.redirect(
+        new URL(`/auth/login?from=${encodeURIComponent(from)}`, req.url)
+      );
+    }
+
+    if (isAdminPage && token?.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    if (isSellerPage && token?.role !== "SELLER") {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
   }
+);
 
-  // Get the token from the Authorization header
-  const token = request.headers.get('Authorization')?.replace('Bearer', '')
-
-  if (!token) {
-    return new NextResponse(
-      JSON.stringify({ message: 'Authentication required' }),
-      { status: 401, headers: { 'content-type': 'application/json' } }
-    )
-  }
-
-  try {
-    // Verify the token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!)
-    
-    // Add the user info to the request headers
-    const requestHeaders = new Headers(request.headers)
-    requestHeaders.set('user', JSON.stringify(decoded))
-
-    // Return the response with the modified headers
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    })
-  } catch (error) {
-    return new NextResponse(
-      JSON.stringify({ message: 'Invalid token' }),
-      { status: 401, headers: { 'content-type': 'application/json' } }
-    )
-  }
-}
-
-// Configure which paths the middleware should run on
 export const config = {
-  matcher: '/api/:path*',
-} 
+  matcher: ["/admin/:path*", "/seller/:path*", "/auth/:path*"],
+}; 

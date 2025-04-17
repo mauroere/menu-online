@@ -1,9 +1,9 @@
-import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import { NextAuthOptions } from "next-auth"
+import NextAuth from "next-auth/next"
 import CredentialsProvider from "next-auth/providers/credentials"
+import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
-import { compare } from "bcryptjs"
+import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          throw new Error("Invalid credentials")
         }
 
         const user = await prisma.user.findUnique({
@@ -31,17 +31,17 @@ export const authOptions: NextAuthOptions = {
           }
         })
 
-        if (!user || !user.password) {
-          return null
+        if (!user || !user?.password) {
+          throw new Error("Invalid credentials")
         }
 
-        const isPasswordValid = await compare(
+        const isCorrectPassword = await bcrypt.compare(
           credentials.password,
           user.password
         )
 
-        if (!isPasswordValid) {
-          return null
+        if (!isCorrectPassword) {
+          throw new Error("Invalid credentials")
         }
 
         return {
@@ -54,7 +54,17 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    session: ({ session, token }) => {
+    async jwt({ token, user }) {
+      if (user) {
+        return {
+          ...token,
+          id: user.id,
+          role: user.role,
+        }
+      }
+      return token
+    },
+    async session({ session, token }) {
       return {
         ...session,
         user: {
@@ -63,17 +73,6 @@ export const authOptions: NextAuthOptions = {
           role: token.role,
         }
       }
-    },
-    jwt: ({ token, user }) => {
-      if (user) {
-        const u = user as unknown as any
-        return {
-          ...token,
-          id: u.id,
-          role: u.role,
-        }
-      }
-      return token
     }
   }
 }
