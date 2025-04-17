@@ -2,6 +2,13 @@
 builder = "nixpacks"
 buildCommand = "npm run build"
 
+[build.env]
+NODE_ENV = "production"
+NEXTAUTH_URL = "https://${RAILWAY_PUBLIC_DOMAIN}"
+NEXTAUTH_SECRET = "${RAILWAY_SECRET_NEXTAUTH_SECRET}"
+DATABASE_URL = "${RAILWAY_DATABASE_URL}"
+DIRECT_URL = "${RAILWAY_DIRECT_URL}"
+
 [deploy]
 startCommand = "npm run railway:start"
 healthcheckPath = "/api/health"
@@ -12,6 +19,6 @@ numRetries = 10
 [deploy.env]
 NODE_ENV = "production"
 NEXTAUTH_URL = "https://${RAILWAY_PUBLIC_DOMAIN}"
-# NEXTAUTH_SECRET debe ser configurado manualmente en Railway
-# DATABASE_URL = "${RAILWAY_DATABASE_URL}"
-# DIRECT_URL = "${RAILWAY_DIRECT_URL}" 
+NEXTAUTH_SECRET = "${RAILWAY_SECRET_NEXTAUTH_SECRET}"
+DATABASE_URL = "${RAILWAY_DATABASE_URL}"
+DIRECT_URL = "${RAILWAY_DIRECT_URL}" 
