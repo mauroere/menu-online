@@ -6,8 +6,8 @@ buildCommand = "npm run build"
 startCommand = "npm run railway:start"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 100
-restartPolicyType = "on-failure"
-restartPolicyMaxRetries = 10
+restartPolicy = "on-failure"
+numRetries = 10
 
 [deploy.env]
 NODE_ENV = "production"
