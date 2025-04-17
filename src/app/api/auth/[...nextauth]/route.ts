@@ -6,14 +6,17 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { Role } from "@prisma/client"
 
-// Verificar el secret solo en desarrollo
-if (process.env.NODE_ENV === "development" && !process.env.NEXTAUTH_SECRET) {
-  console.warn("⚠️ NEXTAUTH_SECRET is not set in development environment")
+// Asegurarnos de que el secret esté disponible
+const secret = process.env.NEXTAUTH_SECRET
+if (!secret) {
+  throw new Error(
+    "NEXTAUTH_SECRET is not set. Please set it in your environment variables."
+  )
 }
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  secret: process.env.NEXTAUTH_SECRET,
+  secret,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
