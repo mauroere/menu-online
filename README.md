@@ -69,12 +69,43 @@ railway link
 
 5. Configura las variables de entorno en Railway:
 ```bash
+# Genera un secreto seguro para NEXTAUTH_SECRET
+npm run generate-secret
+
+# Configura las variables de entorno en Railway
 railway variables set NEXTAUTH_URL=https://tu-app.railway.app
-railway variables set NEXTAUTH_SECRET=tu-secreto
+railway variables set NEXTAUTH_SECRET=tu-secreto-generado
 railway variables set DATABASE_URL=tu-url-de-postgres
+railway variables set DIRECT_URL=tu-url-directa-de-postgres
+railway variables set NODE_ENV=production
 ```
 
 6. Despliega la aplicación:
+```bash
+railway up
+```
+
+### Solución de problemas en Railway
+
+Si encuentras errores relacionados con variables de entorno:
+
+1. Verifica que todas las variables requeridas estén configuradas:
+```bash
+npm run railway:check
+```
+
+2. Asegúrate de que la variable `NEXTAUTH_SECRET` esté configurada correctamente:
+```bash
+railway variables get NEXTAUTH_SECRET
+```
+
+3. Si necesitas regenerar el secreto:
+```bash
+npm run generate-secret
+railway variables set NEXTAUTH_SECRET=nuevo-secreto-generado
+```
+
+4. Reinicia el despliegue:
 ```bash
 railway up
 ```
@@ -100,6 +131,8 @@ src/
 - `npm run lint`: Ejecuta el linter
 - `npm run format`: Formatea el código
 - `npm run type-check`: Verifica los tipos de TypeScript
+- `npm run railway:check`: Verifica las variables de entorno para Railway
+- `npm run generate-secret`: Genera un secreto seguro para NEXTAUTH_SECRET
 
 ## Contribución
 

@@ -9,14 +9,20 @@ import { Role } from "@prisma/client"
 // Asegurarnos de que el secret esté disponible
 const secret = process.env.NEXTAUTH_SECRET
 if (!secret) {
-  throw new Error(
-    "NEXTAUTH_SECRET is not set. Please set it in your environment variables."
-  )
+  console.error("NEXTAUTH_SECRET is not set. Please set it in your environment variables.")
+  // En desarrollo, usar un valor predeterminado
+  if (process.env.NODE_ENV !== "production") {
+    console.warn("Using a default secret for development. DO NOT USE IN PRODUCTION!")
+  } else {
+    throw new Error(
+      "NEXTAUTH_SECRET is not set. Please set it in your environment variables."
+    )
+  }
 }
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  secret,
+  secret: secret || "development-secret-do-not-use-in-production",
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days

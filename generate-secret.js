@@ -1,11 +1,10 @@
 const crypto = require('crypto')
 
-// Generar un secret seguro
+// Genera un secreto seguro de 32 bytes (256 bits) y lo codifica en base64
 const secret = crypto.randomBytes(32).toString('base64')
 
-console.log('🔑 Generated secure NEXTAUTH_SECRET:')
+console.log('Generated NEXTAUTH_SECRET:')
 console.log(secret)
 
-console.log('\n⚠️ IMPORTANT: Make sure to set this secret in your production environment!')
-console.log('Add this to your .env file:')
-console.log(`NEXTAUTH_SECRET="${secret}"`) 
+console.log('\nAdd this to your .env file or Railway environment variables:')
+console.log(`NEXTAUTH_SECRET=${secret}`) 
