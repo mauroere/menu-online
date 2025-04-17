@@ -6,8 +6,13 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { Role } from "@prisma/client"
 
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error("Please provide process.env.NEXTAUTH_SECRET")
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
