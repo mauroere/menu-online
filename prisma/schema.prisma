@@ -21,6 +21,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   orders        Order[]
   complaints    Complaint[]
+  addresses     Address[]
 }
 
 // Product model for menu items
@@ -35,6 +36,10 @@ model Product {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   orderItems  OrderItem[]
+  categoryRef Category? @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  ingredients ProductIngredient[]
+  modifiers   ProductModifier[]
 }
 
 // Order model
@@ -45,6 +50,9 @@ model Order {
   status      OrderStatus @default(PENDING)
   total       Float
   items       OrderItem[]
+  address     Address?    @relation(fields: [addressId], references: [id])
+  addressId   String?
+  payment     Payment?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
@@ -58,6 +66,7 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Int
   price     Float
+  modifiers OrderItemModifier[]
 }
 
 // Complaint model
