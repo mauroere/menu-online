@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "prisma generate && next start -p ${PORT:-3000}",
+    "start": "node server.js",
     "lint": "next lint",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
