@@ -1,11 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['jsonwebtoken'],
-    // Desactivar advertencias experimentales
-    serverActions: true,
-    serverComponents: true
-  },
+  output: 'standalone',
   images: {
     domains: ['localhost'],
     remotePatterns: [
@@ -44,6 +39,12 @@ const nextConfig = {
         ],
       },
     ]
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['jsonwebtoken'],
+    // Desactivar advertencias experimentales
+    serverActions: true,
+    serverComponents: true
   },
 }
 
