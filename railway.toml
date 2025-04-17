@@ -1,13 +1,13 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && npm install recharts && npx prisma generate && npm run build"
+buildCommand = "npm run build"
 
 [deploy]
 startCommand = "npm start"
 healthcheckPath = "/"
 healthcheckTimeout = 100
-restartPolicyType = "on_failure"
+restartPolicyType = "on-failure"
 restartPolicyMaxRetries = 10
 
-[deploy.envs]
+[deploy.env]
 NODE_ENV = "production" 
