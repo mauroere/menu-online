@@ -46,6 +46,15 @@ export default function CategoriesPage() {
     }
   }
 
+  const getToken = () => {
+    try {
+      return localStorage.getItem('token')
+    } catch (error) {
+      console.error('Error accessing localStorage:', error)
+      return null
+    }
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -59,6 +68,13 @@ export default function CategoriesPage() {
     setLoading(true)
     setError(null)
 
+    const token = getToken()
+    if (!token) {
+      setError('No se encontró el token de autenticación')
+      setLoading(false)
+      return
+    }
+
     try {
       const url = editingCategory 
         ? `/api/categories/${editingCategory.id}`
@@ -70,7 +86,7 @@ export default function CategoriesPage() {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           ...formData,

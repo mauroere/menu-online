@@ -175,8 +175,8 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <p className="text-gray-600">
-                "La mejor pizza que he probado. El servicio de entrega fue rápido y el repartidor muy amable."
+              <p className="mt-4 text-lg leading-8 text-gray-600">
+                &ldquo;La mejor experiencia de compra online que he tenido. Los productos son de excelente calidad y el servicio es impecable.&rdquo;
               </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -203,8 +203,8 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <p className="text-gray-600">
-                "Las hamburguesas son deliciosas y jugosas. Siempre que tengo antojo, ordeno aquí."
+              <p className="mt-4 text-lg leading-8 text-gray-600">
+                &ldquo;Me encanta la variedad de productos y la facilidad para realizar pedidos. ¡Definitivamente volveré!&rdquo;
               </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -231,8 +231,8 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <p className="text-gray-600">
-                "Los postres son increíbles. Siempre pido de postre el tiramisú, es mi favorito."
+              <p className="mt-4 text-lg leading-8 text-gray-600">
+                &ldquo;El servicio al cliente es excepcional y los tiempos de entrega son muy precisos. Totalmente recomendado.&rdquo;
               </p>
             </div>
           </div>
