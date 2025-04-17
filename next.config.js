@@ -42,9 +42,6 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: ['jsonwebtoken'],
-    // Desactivar advertencias experimentales
-    serverActions: true,
-    serverComponents: true
   },
 }
 

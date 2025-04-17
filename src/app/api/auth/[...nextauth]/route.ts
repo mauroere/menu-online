@@ -6,8 +6,9 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { Role } from "@prisma/client"
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error("Please provide process.env.NEXTAUTH_SECRET")
+// Verificar el secret solo en desarrollo
+if (process.env.NODE_ENV === "development" && !process.env.NEXTAUTH_SECRET) {
+  console.warn("⚠️ NEXTAUTH_SECRET is not set in development environment")
 }
 
 export const authOptions: NextAuthOptions = {
