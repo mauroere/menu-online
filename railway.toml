@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm run build"
+buildCommand = "npm install && npx prisma generate && npm run build"
 
 [deploy]
 startCommand = "npm start"
@@ -10,4 +10,8 @@ restartPolicyType = "on-failure"
 restartPolicyMaxRetries = 10
 
 [deploy.env]
-NODE_ENV = "production" 
+NODE_ENV = "production"
+NEXTAUTH_URL = "https://${RAILWAY_PUBLIC_DOMAIN}"
+NEXTAUTH_SECRET = "${RAILWAY_SECRET_NEXTAUTH_SECRET}"
+DATABASE_URL = "${RAILWAY_DATABASE_URL}"
+DIRECT_URL = "${RAILWAY_DIRECT_URL}" 
