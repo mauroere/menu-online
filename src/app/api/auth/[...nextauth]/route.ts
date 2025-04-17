@@ -4,14 +4,18 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
+import { Role } from "@prisma/client"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60, // 24 hours
   },
   pages: {
     signIn: "/auth/login",
+    error: "/auth/error",
   },
   providers: [
     CredentialsProvider({
@@ -70,11 +74,27 @@ export const authOptions: NextAuthOptions = {
         user: {
           ...session.user,
           id: token.id,
-          role: token.role,
+          role: token.role as Role,
         }
       }
+    },
+    async redirect({ url, baseUrl }) {
+      // Allows relative URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
     }
-  }
+  },
+  events: {
+    async signIn({ user }) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { updatedAt: new Date() }
+      })
+    }
+  },
+  debug: process.env.NODE_ENV === "development",
 }
 
 const handler = NextAuth(authOptions)
