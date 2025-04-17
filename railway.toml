@@ -1,12 +1,12 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && npx prisma generate && npm run build"
+buildCommand = "npm run build"
 
 [deploy]
-startCommand = "npm start"
+startCommand = "npm run railway:start"
 healthcheckPath = "/api/health"
-healthcheckTimeout = 600
-restartPolicyType = "on_failure"
+healthcheckTimeout = 100
+restartPolicyType = "on-failure"
 restartPolicyMaxRetries = 10
 
 [deploy.env]
