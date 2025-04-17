@@ -12,53 +12,95 @@ datasource db {
 
 // User model for authentication and roles
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  role      String   @default("user")
-  addresses Address[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  orders        Order[]
+  complaints    Complaint[]
 }
 
 // Product model for menu items
 model Product {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   description String?
   price       Float
   image       String?
-  stock       Int      @default(0)
-  categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
-  ingredients ProductIngredient[]
-  modifiers   ProductModifier[]
+  category    String
+  stock       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   orderItems  OrderItem[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 // Order model
 model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  status      OrderStatus @default(PENDING)
+  total       Float
+  items       OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+// Order item model
+model OrderItem {
   id        String   @id @default(cuid())
-  userId    String
-  status    String   @default("pending")
-  total     Float
-  addressId String
-  address   Address  @relation(fields: [addressId], references: [id])
-  items     OrderItem[]
-  payment   Payment?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+// Complaint model
+model Complaint {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  type        ComplaintType
+  description String
+  status      ComplaintStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 // Role enum for user types
 enum Role {
+  USER
+  SELLER
   ADMIN
-  STAFF
-  DRIVER
-  CUSTOMER
+}
+
+// Order status enum
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+// Complaint type enum
+enum ComplaintType {
+  PRODUCT
+  SERVICE
+  DELIVERY
+  OTHER
+}
+
+// Complaint status enum
+enum ComplaintStatus {
+  PENDING
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
 }
 
 // Category model for product organization
@@ -147,20 +189,6 @@ model ProductModifier {
   updatedAt     DateTime  @updatedAt
 
   @@unique([productId, groupId])
-}
-
-// Order item model
-model OrderItem {
-  id            String    @id @default(cuid())
-  orderId       String
-  productId     String
-  quantity      Int
-  price         Decimal
-  order         Order     @relation(fields: [orderId], references: [id])
-  product       Product   @relation(fields: [productId], references: [id])
-  modifiers     OrderItemModifier[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 }
 
 // Order item modifier model

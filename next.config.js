@@ -5,6 +5,9 @@ const nextConfig = {
     domains: ['localhost'],
     // Add other image domains as needed
   },
+  experimental: {
+    serverActions: true,
+  },
   // Enable API routes
   rewrites: async () => {
     return [
