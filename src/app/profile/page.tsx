@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { Card } from '@/components/ui/card'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import { User, Lock, Mail, Phone, MapPin } from 'lucide-react'
+import { signOut } from 'next-auth/react'
 
 interface UserProfile {
   id: string
@@ -31,7 +33,8 @@ interface Order {
 }
 
 export default function ProfilePage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [profile, setProfile] = useState<UserProfile | null>(null)
@@ -45,6 +48,12 @@ export default function ProfilePage() {
     newPassword: '',
     confirmPassword: '',
   })
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/login')
+    }
+  }, [status, router])
 
   useEffect(() => {
     if (session?.user) {
@@ -124,118 +133,47 @@ export default function ProfilePage() {
     }
   }
 
-  if (!session?.user) {
+  if (status === 'loading') {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Mi Perfil</h1>
-        <Card className="p-8 text-center">
-          <p className="text-gray-500 mb-4">Debes iniciar sesión para ver tu perfil</p>
-        </Card>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     )
   }
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">Mi Perfil</h1>
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-        </div>
-      </div>
-    )
+  if (!session) {
+    return null
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Mi Perfil</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Información Personal</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <User className="h-5 w-5 text-gray-500" />
-              <Input
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Nombre completo"
-              />
+      <Card>
+        <CardHeader>
+          <CardTitle>Perfil de Usuario</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-lg font-medium">Nombre</h3>
+              <p className="text-gray-600">{session.user?.name}</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <Mail className="h-5 w-5 text-gray-500" />
-              <Input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Correo electrónico"
-              />
+            <div>
+              <h3 className="text-lg font-medium">Email</h3>
+              <p className="text-gray-600">{session.user?.email}</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <Phone className="h-5 w-5 text-gray-500" />
-              <Input
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Teléfono"
-              />
+            <div>
+              <h3 className="text-lg font-medium">Rol</h3>
+              <p className="text-gray-600">{session.user?.role}</p>
             </div>
-            <div className="flex items-center space-x-2">
-              <MapPin className="h-5 w-5 text-gray-500" />
-              <Input
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="Dirección"
-              />
-            </div>
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? 'Guardando...' : 'Guardar cambios'}
+            <Button
+              variant="destructive"
+              onClick={() => signOut({ callbackUrl: '/' })}
+            >
+              Cerrar Sesión
             </Button>
-          </form>
-        </Card>
-
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Cambiar Contraseña</h2>
-          <form className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Lock className="h-5 w-5 text-gray-500" />
-              <Input
-                name="currentPassword"
-                type="password"
-                value={formData.currentPassword}
-                onChange={handleChange}
-                placeholder="Contraseña actual"
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Lock className="h-5 w-5 text-gray-500" />
-              <Input
-                name="newPassword"
-                type="password"
-                value={formData.newPassword}
-                onChange={handleChange}
-                placeholder="Nueva contraseña"
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Lock className="h-5 w-5 text-gray-500" />
-              <Input
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirmar nueva contraseña"
-              />
-            </div>
-            <Button type="submit" disabled={isSaving}>
-              {isSaving ? 'Cambiando...' : 'Cambiar contraseña'}
-            </Button>
-          </form>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="p-6 mt-6">
         <h2 className="text-lg font-semibold mb-4">Mis Órdenes</h2>
