@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -31,7 +30,6 @@ export default function PaymentForm({
   shipping,
   customer,
 }: PaymentFormProps) {
-  const router = useRouter()
   const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
 
@@ -114,7 +112,11 @@ export default function PaymentForm({
       </Button>
 
       <p className="text-sm text-gray-500 mt-4 text-center">
-        Al hacer clic en "Pagar con MercadoPago" serás redirigido a la página de pago segura de MercadoPago
+        Al hacer clic en &ldquo;Pagar con MercadoPago&rdquo; serás redirigido a la página de pago segura de MercadoPago
+      </p>
+
+      <p className="text-sm text-gray-500">
+        &ldquo;Pago seguro procesado por Stripe&rdquo;
       </p>
     </Card>
   )

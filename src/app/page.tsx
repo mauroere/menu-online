@@ -9,6 +9,10 @@ export default function Home() {
   const { itemCount } = useCart()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -26,6 +30,7 @@ export default function Home() {
                 <Link 
                   href="/menu" 
                   className="btn bg-white text-primary-600 hover:bg-gray-100"
+                  onClick={toggleMenu}
                 >
                   Ver Menú
                 </Link>
