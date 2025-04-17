@@ -1,12 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   images: {
     domains: [
       'res.cloudinary.com', // Si usas Cloudinary para imágenes
       'lh3.googleusercontent.com', // Para imágenes de Google OAuth
     ],
   },
-  // Optimizaciones para Vercel
+  // Optimizaciones para Railway
   swcMinify: true,
   reactStrictMode: true,
   // Configuración de headers de seguridad
