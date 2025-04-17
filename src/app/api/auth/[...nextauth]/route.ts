@@ -1,12 +1,18 @@
+import NextAuth from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { NextAuthOptions } from "next-auth"
-import NextAuth from "next-auth/next"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
-import bcrypt from "bcryptjs"
+import { compare } from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt"
+  },
+  pages: {
+    signIn: "/auth/login",
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -16,7 +22,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Credenciales inválidas")
+          return null
         }
 
         const user = await prisma.user.findUnique({
@@ -25,17 +31,17 @@ export const authOptions: NextAuthOptions = {
           }
         })
 
-        if (!user || !user?.password) {
-          throw new Error("Credenciales inválidas")
+        if (!user || !user.password) {
+          return null
         }
 
-        const isCorrectPassword = await bcrypt.compare(
+        const isPasswordValid = await compare(
           credentials.password,
           user.password
         )
 
-        if (!isCorrectPassword) {
-          throw new Error("Credenciales inválidas")
+        if (!isPasswordValid) {
+          return null
         }
 
         return {
@@ -47,30 +53,27 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-  session: {
-    strategy: "jwt"
-  },
-  pages: {
-    signIn: "/auth/login",
-  },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        return {
-          ...token,
-          role: user.role,
-        }
-      }
-      return token
-    },
-    async session({ session, token }) {
+    session: ({ session, token }) => {
       return {
         ...session,
         user: {
           ...session.user,
+          id: token.id,
           role: token.role,
         }
       }
+    },
+    jwt: ({ token, user }) => {
+      if (user) {
+        const u = user as unknown as any
+        return {
+          ...token,
+          id: u.id,
+          role: u.role,
+        }
+      }
+      return token
     }
   }
 }
