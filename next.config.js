@@ -32,18 +32,6 @@ const nextConfig = {
       },
     ]
   },
-  experimental: {
-    serverActions: true,
-  },
-  // Enable API routes
-  rewrites: async () => {
-    return [
-      {
-        source: '/api/:path*',
-        destination: '/api/:path*',
-      },
-    ]
-  },
 }
 
 module.exports = nextConfig 
