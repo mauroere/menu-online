@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ['jsonwebtoken']
+    serverComponentsExternalPackages: ['jsonwebtoken'],
+    // Desactivar advertencias experimentales
+    serverActions: true,
+    serverComponents: true
   },
   images: {
     domains: ['localhost'],
