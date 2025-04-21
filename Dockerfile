@@ -2,9 +2,9 @@
 FROM node:18-alpine3.14 AS base
 
 # Instalar dependencias del sistema
-RUN apk add --no-cache \
-    openssl1.1-compat \
-    openssl1.1-compat-dev \
+RUN apk update && apk add --no-cache \
+    openssl \
+    openssl-dev \
     libc6-compat \
     python3 \
     make \
