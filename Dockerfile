@@ -1,11 +1,10 @@
-# Usar una imagen base específica de Alpine con las dependencias necesarias
-FROM node:18-alpine3.14 AS base
+# Usar una imagen base más reciente
+FROM node:20-alpine AS base
 
 # Instalar dependencias del sistema
 RUN apk update && apk add --no-cache \
     openssl \
     openssl-dev \
-    libc6-compat \
     python3 \
     make \
     g++ \
