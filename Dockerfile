@@ -1,5 +1,5 @@
-# Usar una imagen base de Debian
-FROM node:20-slim AS base
+# Usar una imagen base de Debian específica
+FROM node:18-bullseye-slim AS base
 
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
