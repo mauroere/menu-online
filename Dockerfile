@@ -36,6 +36,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ENV NEXTAUTH_SECRET=X7K9vM2N4P6Q8R0T2U4W6Y8Z0a2c4e6g8i0k2m4o6q8s0u2w4y6
 ENV JWT_SECRET=b3d5f7h9j1l3n5p7r9t1v3x5z7B9D1F3H5J7L9N1P3R5T7V9X1
 ENV NODE_ENV=production
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/menu_online?schema=public"
 
 # Generar Prisma Client y construir la aplicación
 RUN npx prisma generate
@@ -47,6 +48,7 @@ WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/menu_online?schema=public"
 
 # Crear usuario y grupo no root
 RUN groupadd --system --gid 1001 nodejs
