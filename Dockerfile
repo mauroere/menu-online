@@ -8,7 +8,8 @@ RUN apk add --no-cache \
     libc6-compat \
     python3 \
     make \
-    g++
+    g++ \
+    build-base
 
 # Etapa de dependencias
 FROM base AS deps
