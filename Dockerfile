@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Etapa de dependencias
@@ -71,6 +72,10 @@ EXPOSE 3000
 # Configurar variables de entorno
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+
+# Configurar healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Comando para iniciar la aplicación
 CMD ["node", "server.js"] 
