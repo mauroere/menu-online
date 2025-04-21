@@ -1,14 +1,14 @@
-# Usar una imagen base más reciente
-FROM node:20-alpine AS base
+# Usar una imagen base de Debian
+FROM node:20-slim AS base
 
 # Instalar dependencias del sistema
-RUN apk update && apk add --no-cache \
+RUN apt-get update && apt-get install -y \
     openssl \
-    openssl-dev \
+    libssl1.1 \
     python3 \
     make \
     g++ \
-    build-base
+    && rm -rf /var/lib/apt/lists/*
 
 # Etapa de dependencias
 FROM base AS deps
@@ -48,8 +48,8 @@ ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Crear usuario y grupo no root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 nextjs
 
 # Copiar archivos necesarios
 COPY --from=builder /app/public ./public
